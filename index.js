@@ -18,7 +18,7 @@ var totalFiles = 0
 
 module.exports = function(config, options){
 	var options = options || {}
-	var options = extend({dir: '', versioning: false, versionFile: null, options);
+	var options = extend( {dir: '', versioning: false, versionFile: null}, options );
   	var qn = qn.create(qiniu)
     var version = Moment().format('YYMMDDHHmm')
 
