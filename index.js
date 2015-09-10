@@ -5,13 +5,13 @@ var crypto = require('crypto')
 var util = require('util')
 var through2 = require('through2')
 var gulpUtil = require('gulp-util')
-var qn = require('qn')
+var QN = require('qn');
 var q = require('q')
-var moment = require('moment')
+var Moment = require('moment')
 
 var colors = gulpUtil.colors
 var log  = gulpUtil.log
-var pluginError = gulpUtil.PluginError
+var PluginError = gulpUtil.PluginError
 var uploadedFiles = 0
 var totalFiles = 0
 
@@ -19,29 +19,27 @@ var totalFiles = 0
 module.exports = function(config, options){
 	var options = options || {}
 	var options = extend( {dir: '', versioning: false, versionFile: null}, options );
-  	var qn = qn.create(config)
+  	var qn = QN.create(config)
     var version = Moment().format('YYMMDDHHmm')
-
 
     return through2.obj(function(file, enc, next){
 
 	    var that = this;
-	    var isIgnore = false;
 	    var filePath = path.relative(file.base, file.path);
 
 	    if (file._contents === null) return next();
-        var fileKey = option.dir + ((!option.dir || option.dir[option.dir.length - 1]) === '/' ? '' : '/') + (option.versioning ? version + '/' : '') + filePath;
+        var fileKey = options.dir + ((!options.dir || options.dir[options.dir.length - 1]) === '/' ? '' : '/') + (options.versioning ? version + '/' : '') + filePath;
     	var fileHash = calcHash(file);
 
     	//以同步的方式处理 文件上传
     	q.nbind(qn.stat, qn)(fileKey).spread(function(stat){
     		if (stat.hash === fileHash) return false;
-    		return Q.nbind(qn.delete, qn)(fileKey)
+    		return q.nbind(qn.delete, qn)(fileKey)
     	}, function(){ return true;})
     	.then(function(isUpload){
     		totalFiles ++ 
     		if (isUpload === false) return false
-    		return Q.nbind(qn.upload, qn)(file._contents, {key: fileKey})
+    		return q.nbind(qn.upload, qn)(file._contents, {key: fileKey});
     	})
     	.then(function (stat){
     		if( stat === false ){
@@ -52,7 +50,6 @@ module.exports = function(config, options){
     		log('Upload:', colors.green(filePath), '→', colors.green(fileKey));
     	}, function(err){
     		log('Error', colors.red(filePath));
-
     	})
     	.then(function(){
     		next();
@@ -62,12 +59,12 @@ module.exports = function(config, options){
     	log('Total:', colors.green(uploadedFiles + '/' + totalFiles));
 
         // Check if versioning
-        if (!option.versioning) return;
+        if (!options.versioning) return;
         log('Version:', colors.green(version));
 
-        if (option.versionFile) {
-          fs.writeFileSync(option.versionFile, JSON.stringify({version: version}))
-          log('Write version file:', colors.green(option.versionFile));
+        if (options.versionFile) {
+          fs.writeFileSync(options.versionFile, JSON.stringify({version: version}))
+          log('Write version file:', colors.green(options.versionFile));
         }
     });
 
