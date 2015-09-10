@@ -1,15 +1,22 @@
 {
-    "name": "gulp-qn-sync",
-    "version": "0.1.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/alexsunxl/gulp-qn-sync.git"
-    },
-    "author": "alexsunxl",
-    "license": "MIT"
+  "name": "gulp-qn-sync",
+  "version": "0.2.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexsunxl/gulp-qn-sync.git"
+  },
+  "author": "alexsunxl",
+  "license": "MIT",
+  "dependencies": {
+    "gulp-util": "^3.0.6",
+    "moment": "^2.10.6",
+    "q": "^1.4.1",
+    "qn": "^1.0.1",
+    "through2": "^2.0.0"
+  }
 }
