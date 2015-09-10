@@ -14,7 +14,7 @@
   当前的上传任务不完成，则无法进行下一个任务。
   
 ##demo gulpfile.js
-    var qiniu = require('gulp-qiniu')
+    var qiniu = require('gulp-qn-sync')
     
     gulp.task('js', gulp.series(uploadQiniu));
     
