@@ -5,7 +5,7 @@ gulp-qn-sync is a [gulp](https://github.com/wearefractal/gulp) plugin to upload 
 ## Usage
 
 ```javascript
-npm install gulp-qiniu --save-dev
+npm install gulp-qn-sync --save-dev
 ```
 
 ```javascript
