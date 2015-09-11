@@ -14,57 +14,60 @@ var log  = gulpUtil.log
 var PluginError = gulpUtil.PluginError
 var uploadedFiles = 0
 var totalFiles = 0
+var filesUploaded = {} // 记录所有成功上传的文件。 {filePath:fileKey, ...}
 
 
 module.exports = function(config, options){
-	var options = options || {}
-	var options = extend( {dir: '', versioning: false, versionFile: null}, options );
-  	var qn = QN.create(config)
+    var options = options || {}
+    var options = extend( {dir: '', versioning: false, recordInFile: null}, options );
+    var recordFile = options.recordInFile || null; //以json形式在本地文件记录上传内容
+    var qn = QN.create(config)
     var version = Moment().format('YYMMDDHHmm')
 
     return through2.obj(function(file, enc, next){
 
-	    var that = this;
-	    var filePath = path.relative(file.base, file.path);
+        var that = this;
+        var filePath = path.relative(file.base, file.path);
 
-	    if (file._contents === null) return next();
+        if (file._contents === null) return next();
         var fileKey = options.dir + ((!options.dir || options.dir[options.dir.length - 1]) === '/' ? '' : '/') + (options.versioning ? version + '/' : '') + filePath;
-    	var fileHash = calcHash(file);
+        var fileHash = calcHash(file);
 
-    	//以同步的方式处理 文件上传
-    	q.nbind(qn.stat, qn)(fileKey).spread(function(stat){
-    		if (stat.hash === fileHash) return false;
-    		return q.nbind(qn.delete, qn)(fileKey)
-    	}, function(){ return true;})
-    	.then(function(isUpload){
-    		totalFiles ++ 
-    		if (isUpload === false) return false
-    		return q.nbind(qn.upload, qn)(file._contents, {key: fileKey});
-    	})
-    	.then(function (stat){
-    		if( stat === false ){
-    			log('Skip:', colors.grey(filePath));
-    			return 
-    		}
-    		uploadedFiles ++
-    		log('Upload:', colors.green(filePath), '→', colors.green(fileKey));
-    	}, function(err){
-    		log('Error', colors.red(filePath));
-    	})
-    	.then(function(){
-    		next();
-    	})
+        //以同步的方式处理 文件上传
+        q.nbind(qn.stat, qn)(fileKey).spread(function(stat){
+            if (stat.hash === fileHash) return false;
+            return q.nbind(qn.delete, qn)(fileKey)
+        }, function(){ return true;})
+        .then(function(isUpload){
+            totalFiles ++ 
+            if (isUpload === false) return false
+            return q.nbind(qn.upload, qn)(file._contents, {key: fileKey});
+        })
+        .then(function (stat){
+            if( stat === false ){
+                log('Skip:', colors.grey(filePath));
+                return 
+            }
+            uploadedFiles ++
+            filesUploaded[filePath] = fileKey;
+            log('Upload:', colors.green(filePath), '→', colors.green(fileKey));
+        }, function(err){
+            log('Error', colors.red(filePath));
+        })
+        .then(function(){
+            next();
+        })
 
     }, function(){ /* flushFunction */
-    	log('Total:', colors.green(uploadedFiles + '/' + totalFiles));
+        log('Total:', colors.green(uploadedFiles + '/' + totalFiles));
 
         // Check if versioning
         if (!options.versioning) return;
         log('Version:', colors.green(version));
 
-        if (options.versionFile) {
-          fs.writeFileSync(options.versionFile, JSON.stringify({version: version}))
-          log('Write version file:', colors.green(options.versionFile));
+        if ( recordFile ) {
+            fs.writeFileSync(recordFile, JSON.stringify(filesUploaded))
+            log('Write version file:', colors.green(recordFile));
         }
     });
 

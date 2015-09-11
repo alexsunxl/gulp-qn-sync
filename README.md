@@ -1,5 +1,7 @@
 
-# gulp-qn-sync
+
+
+#gulp-qn-sync
 
 ##Install
 
@@ -18,21 +20,30 @@
   
 ##demo gulpfile.js
 
+
     var qiniu = require('gulp-qn-sync')
     
-    gulp.task('js', gulp.series(uploadQiniu));
+    gulp.task('js', gulp.series(
+    	/** 其他任务，如js，css打包预编译 */
+    	// 	task_js,
+    	//	task_css,
+		uploadQiniu
+	));
+	/** function task_js(callback){...} */
+	/** function task_css(callback){...} */
+	 
     
     function uploadQiniu(callback){
     	gulp.src([ files /** filespath */])
-    		.pipe(qiniu({
-    			accessKey: ACCESSKEY,
-    			secretKey: SECRETKEY,
-    			bucket: BUCKET.res,
-    			private: false
-    		}, {
-    			dir: 'release/',
-    			versioning: true,
-    			versionFile: './cdn.json'
-    		}))
+			.pipe(qiniu({
+				accessKey: ACCESSKEY,
+				secretKey: SECRETKEY,
+				bucket: BUCKET,
+				private: false
+			}, {
+				dir: 'release/',
+				versioning: true,
+				recordInFile: './staticfiles.json'
+			}))
     		.on('finish', callback);
     }
