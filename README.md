@@ -1,14 +1,18 @@
+# gulp-qn-sync
 
+gulp-qn-sync is a [gulp](https://github.com/wearefractal/gulp) plugin to upload the files which you have concat and minify ,to the Qiniu Cloud CDN in a synchronized manner and record the uploaded files.
 
+## Usage
 
-#gulp-qn-sync
+```javascript
+npm install gulp-qiniu --save-dev
+```
 
-##Install
+```javascript
+var jeditor = require("gulp-json-editor");
+```
 
-
-    npm install gulp-qiniu --save-dev
-
-##content 
+## content 
 
   以同步的方式上传文件到七牛云
   
@@ -18,8 +22,8 @@
   
   当前的上传任务不完成，则无法进行下一个任务。
   
-##demo gulpfile.js
-
+## demo gulpfile.js
+```javascript
 
     var qiniu = require('gulp-qn-sync')
     
@@ -47,3 +51,4 @@
 			}))
     		.on('finish', callback);
     }
+```
